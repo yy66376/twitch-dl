@@ -2,6 +2,8 @@ import requests
 import json
 import m3u8
 import datetime
+import urllib.request
+import re
 from requests.exceptions import RequestException
 
 CLIENT_ID = "kimne78kx3ncx6brgo4mv6wki5h1ko"
@@ -12,6 +14,12 @@ USHER_API_URL = "https://usher.ttvnw.net/vod/{vod_id}"
 
 # Official Twitch API endpoints
 TWITCH_VIDEO_URL = "https://api.twitch.tv/kraken/videos/{vod_id}"
+
+# Regex for matching .ts files
+TS_REGEX = "\d+\.ts$"
+
+# The current working directory
+# cwd = 
 
 class VOD(object):
 
@@ -29,16 +37,19 @@ class VOD(object):
             raise ValueError("Please enter a valid quality option.")
         else:
             self.quality = self.quality_options[0]
-        playlist_url = self.playlist_urls[self.quality][1]
-        self.playlist_prefix = playlist_url.split('index-dvr.m3u8')[0]
+        self.playlist_url = self.playlist_urls[self.quality][1]
+        self.playlist_prefix = self.playlist_url.split('index-dvr.m3u8')[0]
+
+        self.first_chunk = -1
+        self.last_chunk = -1
 
         self.start_time = 0 if start_time == "" else self.time_to_seconds(start_time)
         self.validate_time(self.start_time, 0, self.length)
         self.end_time = self.length if end_time == "" else self.time_to_seconds(end_time)
         self.validate_time(self.end_time, self.start_time, self.length)
 
-        self.first_chunk = -1
-        self.last_chunk = -1
+        filename = self.download_playlist()
+        self.resolve_first_last_chunks(filename)
     
     def get_vod_info(self):
         response = requests.get(TWITCH_VIDEO_URL.format(vod_id=self.vod_id), headers={'Accept': 'application/vnd.twitchtv.v5+json', 'Client-ID': CLIENT_ID})
@@ -64,12 +75,12 @@ class VOD(object):
         else:
             converted_time = 0
             components = [int(component) for component in components]
-            self.validate_time(components[0], 0, 59)
+            self.validate_time(components[0], 0, 999)
             self.validate_time(components[1], 0, 59)
-            self.validate_time(components[2], 0, 999)
-            converted_time += components[0]
+            self.validate_time(components[2], 0, 59)
+            converted_time += 3600 * components[0]
             converted_time += 60 * components[1]
-            converted_time += 3600 * components[2]
+            converted_time += components[2]
             return converted_time
     
     def validate_time(self, time: int, low: int, high: int) -> bool:
@@ -78,8 +89,40 @@ class VOD(object):
             raise ValueError("Time is out of range. Please enter a correct time.")
 
     
-    # def download_playlist(self):
+    def download_playlist(self) -> str:
+        """Downloads the m3u8 playlist file to the cwd."""
+        filename, headers = urllib.request.urlretrieve(self.playlist_url, f'{self.channel}_{self.vod_id}.m3u8')
+        return filename
 
+    def resolve_first_last_chunks(self, filename: str):
+        """Determines the first and last chunks of the video."""
+        m3u8_fh = m3u8.load(filename)
+        
+        curr_time = 0
+        for index, segment in enumerate(m3u8_fh.data['segments']):
+            curr_time += segment['duration']
+
+            if self.first_chunk == -1 and self.start_time < curr_time:
+                self.first_chunk = index
+
+            if self.last_chunk == -1 and self.end_time <= curr_time:
+                self.last_chunk = index
+                break
+        
+        if self.first_chunk == -1:
+            self.first_chunk = 0
+        if self.last_chunk == -1:
+            self.last_chunk = len(m3u8_fh.data['segments']) - 1
+
+    def download(self):
+        """Downloads the VOD at the specified time interval [self.start_time, self.end_time]."""
+        with open(f'{self.channel}_{self.vod_id}.ts', 'wb') as fh:
+            for chunk_num in range(self.first_chunk, self.last_chunk + 1):
+                response = requests.get(self.playlist_prefix + str(chunk_num) + '.ts')
+                if response.status_code == 200:
+                    fh.write(response.content)
+                else:
+                    raise RequestException(f"Twitch usher server returned with status code {response.status_code}")
 
 
 def get_vod_gql_query(vod_id):
@@ -127,4 +170,5 @@ def get_playlist_urls(vod_id):
     else:
         raise RequestException(f"Twitch usher server returned with status code {response.status_code}")
 
-v = VOD("1015165464")
+v = VOD("1015165464", start_time="6 0 42", end_time="6 1 0")
+v.download()
