@@ -2,29 +2,19 @@ import os
 import requests
 import json
 import m3u8
-import datetime
 import urllib.request
 import shutil
 import threading
 import subprocess
 from requests.exceptions import RequestException
-
-CLIENT_ID = "kimne78kx3ncx6brgo4mv6wki5h1ko"
-
-# These API endpoints are not officially supported by Twitch and may break at any time.
-TWITCH_GQL_URL = "https://gql.twitch.tv/gql"
-USHER_API_URL = "https://usher.ttvnw.net/vod/{vod_id}"
-
-# Official Twitch API endpoints
-TWITCH_VIDEO_URL = "https://api.twitch.tv/kraken/videos/{vod_id}"
-
-# Regex for matching .ts files
-TS_REGEX = "\d+\.ts$"
+from src.constants import TWITCH_VIDEO_URL, TWITCH_GQL_URL, USHER_API_URL, CLIENT_ID
+from src.services.twitch import get_vod_info
+from src.services.twitch import get_vod_access_token
 
 
 def validate_time(time: int, low: int, high: int):
     """
-    Ensures that time is within bounds of (low, high). Throws an exception otherwise.
+    Ensures that time is within bounds of (low, high). Throws a ValueError otherwise.
     """
     if time < low or time > high:
         raise ValueError("Time is out of range. Please enter a correct time.")
@@ -32,7 +22,8 @@ def validate_time(time: int, low: int, high: int):
 
 def time_to_seconds(time: str) -> int:
     """
-    Converts a string representation of time [hh mm ss] to an integer in seconds
+    Converts a string representation of time [hh mm ss] to an integer in seconds. Throws a ValueError if the input
+    is not valid.
     """
     components = time.split()
     if len(components) != 3:
@@ -50,14 +41,15 @@ def time_to_seconds(time: str) -> int:
 
 
 class VOD(object):
-
     def __init__(self, vod_id, start_time="", end_time="", quality=""):
         self.vod_id = vod_id
-        self.length = -1
-        self.title = ""
-        self.channel = ""
-        self.date = None
-        self.get_vod_info()
+
+        # Retrieve length, title, broadcast date, and the channel of the VOD
+        vod_info = get_vod_info(vod_id)
+        self.length = vod_info['length']
+        self.title = vod_id['title']
+        self.channel = vod_info['channel']
+        self.date = vod_id['date']
 
         self.playlist_urls = self.get_playlist_urls()
         self.quality_options = self.get_quality_options()
@@ -83,20 +75,6 @@ class VOD(object):
 
         filename = self.download_playlist()
         self.resolve_first_last_chunks(filename)
-
-    def get_vod_info(self):
-        response = requests.get(TWITCH_VIDEO_URL.format(vod_id=self.vod_id),
-                                headers={'Accept': 'application/vnd.twitchtv.v5+json', 'Client-ID': CLIENT_ID})
-        if response.status_code == 200:
-            json_response = response.json()
-            self.length = json_response['length']
-            self.title = json_response['title']
-            self.channel = json_response['channel']['name']
-            self.date = datetime.datetime.strptime(json_response['created_at'], '%Y-%m-%dT%H:%M:%SZ')
-        elif response.status_code == 404:
-            raise ValueError("The specified VOD ID does not exist or has been deleted.")
-        else:
-            raise RequestException(f"Twitch server returned with status code {response.status_code}.")
 
     def get_quality_options(self):
         return [quality for quality in self.playlist_urls.keys()]
@@ -141,95 +119,6 @@ class VOD(object):
                 else:
                     raise RequestException(f"Twitch usher server returned with status code {response.status_code}")
 
-    def get_vod_gql_query(self):
-        """
-        Constructs a json representation of a Twitch GQL VOD access query.
-        """
-        gql_access_token_query_dict = {
-            "operationName": "PlaybackAccessToken",
-            "extensions": {
-                "persistedQuery": {
-                    "version": 1,
-                    "sha256Hash": "0828119ded1c13477966434e15800ff57ddacf13ba1911c129dc2200705b0712"
-                }
-            },
-            "variables": {
-                "isLive": False,
-                "login": "",
-                "isVod": True,
-                "vodID": self.vod_id,
-                "playerType": "embed"
-            },
-        }
-        return json.dumps(gql_access_token_query_dict, indent=None)
-
-    def get_vod_access_token(self) -> dict:
-        """
-        Retrieves the access token value and signature for this VOD stored in a dictionary.
-        """
-        query = self.get_vod_gql_query()
-        response = requests.post(TWITCH_GQL_URL, data=query, headers={"Client-ID": CLIENT_ID})
-        if response.status_code == 200:
-            video_playback_access_token = response.json()['data']['videoPlaybackAccessToken']
-            return {"value": video_playback_access_token['value'],
-                    "signature": video_playback_access_token['signature']}
-        else:
-            raise RequestException(f"Twitch GQL server returned with status code {response.status_code}")
-
-    def get_playlist_urls(self):
-        """
-        Retrieves the m3u8 playlist URLs for this VOD stored in a dictionary.
-        Keys are video resolutions and values are tuples of video resolution and the playlist URL corresponding
-        to that video resolution.
-        """
-        url = USHER_API_URL.format(vod_id=self.vod_id)
-        access_token = self.get_vod_access_token()
-        response = requests.get(url,
-                                params={"client_id": CLIENT_ID, "allow_source": True, "token": access_token['value'],
-                                        "sig": access_token['signature']})
-        if response.status_code == 200:
-            variant_playlists = m3u8.loads(response.text)
-            quality_to_resolution_url = {}
-            for playlist in variant_playlists.playlists:
-                resolution = playlist.stream_info.resolution
-                quality_to_resolution_url[playlist.stream_info.video] = (
-                    str(resolution[0]) + '×' + str(resolution[1]), playlist.uri)
-            return quality_to_resolution_url
-        else:
-            raise RequestException(f"Twitch usher server returned with status code {response.status_code}")
-
-
-# def download_concurrent(vod: VOD, num_threads: int = 8):
-#     pending_jobs = queue.Queue()
-
-#     # Add all download jobs to the queue
-#     for chunk in range(vod.first_chunk, vod.last_chunk + 1):
-#         pending_jobs.put(chunk)
-
-#     # Create the file that all the threads will be writing to
-#     fh = open(f'{vod.channel}_{vod.vod_id}.ts', 'wb')
-
-#     # Create a pool of threads
-#     thread_list = []
-#     for i in range(num_threads):
-#         thread = threading.Thread(target=worker_handler, args=(vod, pending_jobs, fh))
-#         thread_list.append(thread)
-#         thread.start()
-
-#     # Block until all download jobs are complete
-#     pending_jobs.join()
-
-# def worker_handler(vod: VOD, queue: queue.Queue, fh):
-#     while True:
-#         chunk_num = queue.get()
-
-#         response = requests.get(vod.playlist_prefix + str(chunk_num) + '.ts')
-
-#         if response.status_code == 200:
-#             fh.write(response.content)
-
-
-#         queue.join()
 
 def download_concurrent(vod: VOD, num_threads: int = 8):
     # Download and trim the first and last chunk of the video
