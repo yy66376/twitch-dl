@@ -1,0 +1,107 @@
+interactions:
+- request:
+    body: '{"operationName": "PlaybackAccessToken", "extensions": {"persistedQuery":
+      {"version": 1, "sha256Hash": "0828119ded1c13477966434e15800ff57ddacf13ba1911c129dc2200705b0712"}},
+      "variables": {"isLive": false, "login": "", "isVod": true, "vodID": "502435183",
+      "playerType": "embed"}}'
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Client-ID:
+      - kimne78kx3ncx6brgo4mv6wki5h1ko
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '277'
+      User-Agent:
+      - python-requests/2.25.1
+    method: POST
+    uri: https://gql.twitch.tv/gql
+  response:
+    body:
+      string: '{"data":{"videoPlaybackAccessToken":{"value":"{\"authorization\":{\"forbidden\":false,\"reason\":\"\"},\"chansub\":{\"restricted_bitrates\":[]},\"device_id\":null,\"expires\":1622147969,\"https_required\":true,\"privileged\":false,\"user_id\":null,\"version\":2,\"vod_id\":502435183}","signature":"1b0d2d262b60f1f0c51277c85061e740b545331c","__typename":"PlaybackAccessToken"}},"extensions":{"durationMilliseconds":66,"operationName":"PlaybackAccessToken","requestID":"01F6NM643HAXXXV0GEJHAWT4Z5"}}'
+    headers:
+      Access-Control-Allow-Origin:
+      - '*'
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '497'
+      Content-Type:
+      - application/json
+      Date:
+      - Thu, 27 May 2021 00:39:29 GMT
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.25.1
+    method: GET
+    uri: https://usher.ttvnw.net/vod/502435183?client_id=kimne78kx3ncx6brgo4mv6wki5h1ko&allow_source=True&token=%7B%22authorization%22%3A%7B%22forbidden%22%3Afalse%2C%22reason%22%3A%22%22%7D%2C%22chansub%22%3A%7B%22restricted_bitrates%22%3A%5B%5D%7D%2C%22device_id%22%3Anull%2C%22expires%22%3A1622147969%2C%22https_required%22%3Atrue%2C%22privileged%22%3Afalse%2C%22user_id%22%3Anull%2C%22version%22%3A2%2C%22vod_id%22%3A502435183%7D&sig=1b0d2d262b60f1f0c51277c85061e740b545331c
+  response:
+    body:
+      string: '#EXTM3U
+
+        #EXT-X-TWITCH-INFO:ORIGIN="s3",B="false",REGION="NA",USER-IP="73.63.218.195",SERVING-ID="0eaa2e2a74f3487d8c5cdebbbb8fb041",CLUSTER="metro_vod",USER-COUNTRY="US",MANIFEST-CLUSTER="metro_vod"
+
+        #EXT-X-MEDIA:TYPE=VIDEO,GROUP-ID="chunked",NAME="1080p60",AUTOSELECT=YES,DEFAULT=YES
+
+        #EXT-X-STREAM-INF:BANDWIDTH=6264093,CODECS="avc1.64002A,mp4a.40.2",RESOLUTION=1920x1080,VIDEO="chunked",FRAME-RATE=59.998
+
+        https://dqrpb9wgowsf5.cloudfront.net/c95eb02ffeefef8c5806_c9sneaky_36482096616_7587851833/chunked/highlight-502435183.m3u8
+
+        #EXT-X-MEDIA:TYPE=VIDEO,GROUP-ID="720p60",NAME="720p60",AUTOSELECT=YES,DEFAULT=YES
+
+        #EXT-X-STREAM-INF:BANDWIDTH=3200659,CODECS="avc1.4D401F,mp4a.40.2",RESOLUTION=1280x720,VIDEO="720p60",FRAME-RATE=59.998
+
+        https://dqrpb9wgowsf5.cloudfront.net/c95eb02ffeefef8c5806_c9sneaky_36482096616_7587851833/720p60/highlight-502435183.m3u8
+
+        #EXT-X-MEDIA:TYPE=VIDEO,GROUP-ID="720p30",NAME="720p",AUTOSELECT=YES,DEFAULT=YES
+
+        #EXT-X-STREAM-INF:BANDWIDTH=2289904,CODECS="avc1.4D401F,mp4a.40.2",RESOLUTION=1280x720,VIDEO="720p30",FRAME-RATE=29.999
+
+        https://dqrpb9wgowsf5.cloudfront.net/c95eb02ffeefef8c5806_c9sneaky_36482096616_7587851833/720p30/highlight-502435183.m3u8
+
+        #EXT-X-MEDIA:TYPE=VIDEO,GROUP-ID="480p30",NAME="480p",AUTOSELECT=YES,DEFAULT=YES
+
+        #EXT-X-STREAM-INF:BANDWIDTH=1435098,CODECS="avc1.4D401E,mp4a.40.2",RESOLUTION=852x480,VIDEO="480p30",FRAME-RATE=29.999
+
+        https://dqrpb9wgowsf5.cloudfront.net/c95eb02ffeefef8c5806_c9sneaky_36482096616_7587851833/480p30/highlight-502435183.m3u8
+
+        #EXT-X-MEDIA:TYPE=VIDEO,GROUP-ID="360p30",NAME="360p",AUTOSELECT=YES,DEFAULT=YES
+
+        #EXT-X-STREAM-INF:BANDWIDTH=711600,CODECS="avc1.4D401E,mp4a.40.2",RESOLUTION=640x360,VIDEO="360p30",FRAME-RATE=29.999
+
+        https://dqrpb9wgowsf5.cloudfront.net/c95eb02ffeefef8c5806_c9sneaky_36482096616_7587851833/360p30/highlight-502435183.m3u8
+
+        #EXT-X-MEDIA:TYPE=VIDEO,GROUP-ID="160p30",NAME="160p",AUTOSELECT=YES,DEFAULT=YES
+
+        #EXT-X-STREAM-INF:BANDWIDTH=283655,CODECS="avc1.4D400C,mp4a.40.2",RESOLUTION=284x160,VIDEO="160p30",FRAME-RATE=29.999
+
+        https://dqrpb9wgowsf5.cloudfront.net/c95eb02ffeefef8c5806_c9sneaky_36482096616_7587851833/160p30/highlight-502435183.m3u8'
+    headers:
+      cache-control:
+      - no-cache,no-store
+      content-length:
+      - '2139'
+      content-type:
+      - application/vnd.apple.mpegurl
+      date:
+      - Thu, 27 May 2021 00:39:29 GMT
+      server:
+      - nginx/1.14.1
+    status:
+      code: 200
+      message: OK
+version: 1

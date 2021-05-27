@@ -1,6 +1,6 @@
 import json
 from datetime import datetime
-
+import json
 import m3u8
 import requests
 from requests import RequestException
@@ -11,7 +11,7 @@ from src.constants import TWITCH_VIDEO_URL, TWITCH_GQL_URL, USHER_API_URL, CLIEN
 def get_vod_info(vod_id: str) -> dict:
     """
     Retrieves information about the specified VOD including length in seconds, title, channel name, and the date
-    the VOD was published as a dictionary.
+    the VOD was published in json format.
     """
     response = requests.get(TWITCH_VIDEO_URL.format(vod_id=vod_id),
                             headers={'Accept': 'application/vnd.twitchtv.v5+json', 'Client-ID': CLIENT_ID})
@@ -63,24 +63,30 @@ def get_vod_access_token(vod_id: str) -> dict:
         raise RequestException(f"Twitch GQL server returned with status code {response.status_code}")
 
 
-def get_vod_playlist_urls(self):
-    """
-    Retrieves the m3u8 playlist URLs for this VOD stored in a dictionary.
-    Keys are video resolutions and values are tuples of video resolution and the playlist URL corresponding
-    to that video resolution.
-    """
-    url = USHER_API_URL.format(vod_id=self.vod_id)
-    access_token = get_vod_access_token(vod_id=self.vod_id)
+def contact_usher_api(vod_id: str):
+    """Submits a GET request to the Twitch Usher API and returns the response."""
+    url = USHER_API_URL.format(vod_id=vod_id)
+    access_token = get_vod_access_token(vod_id=vod_id)
     response = requests.get(url,
                             params={"client_id": CLIENT_ID, "allow_source": True, "token": access_token['value'],
                                     "sig": access_token['signature']})
     if response.status_code == 200:
-        variant_playlists = m3u8.loads(response.text)
-        quality_to_resolution_url = {}
-        for playlist in variant_playlists.playlists:
-            resolution = playlist.stream_info.resolution
-            quality_to_resolution_url[playlist.stream_info.video] = (
-                str(resolution[0]) + '×' + str(resolution[1]), playlist.uri)
-        return quality_to_resolution_url
+        return response.text
     else:
         raise RequestException(f"Twitch usher server returned with status code {response.status_code}")
+
+
+def get_vod_playlist_urls(vod_id: str):
+    """
+    Retrieves the m3u8 playlist URLs for this VOD stored in a dictionary.
+    Keys are quality codes and values are tuples of video resolution and the playlist URL corresponding
+    to that video resolution.
+    """
+    usher_response = contact_usher_api(vod_id)
+    variant_playlists = m3u8.loads(usher_response)
+    quality_to_resolution_url = {}
+    for playlist in variant_playlists.playlists:
+        resolution = playlist.stream_info.resolution
+        quality_to_resolution_url[playlist.stream_info.video] = (
+            str(resolution[0]) + '×' + str(resolution[1]), playlist.uri)
+    return quality_to_resolution_url

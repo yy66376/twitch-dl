@@ -1,0 +1,76 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/vnd.twitchtv.v5+json
+      Accept-Encoding:
+      - gzip, deflate
+      Client-ID:
+      - kimne78kx3ncx6brgo4mv6wki5h1ko
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.25.1
+    method: GET
+    uri: https://api.twitch.tv/kraken/videos/502435183
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAA/8xXTW/jNhD9KwaB3CSbX/oEiqLbRU9725y2WAgUSclMKFIgKdtp6v9eUP6IEmSz
+        6F6SS4DMUJw3T/PGT48gqKAlqEHr2DSsWhbivwkQ0nOnxqCsATV4Hmi2YdCnaOssE5z50CgBarQM
+        hIcx3rtV/VarfhtAAnxgYfKgBk5y64QUIAGB9Y1WPpzu2ym596DOCMIJmFyssg1h9PVms9/v12Gv
+        At+uw26zU0Jav8kgpiRDJQEJ0Mz0E+tjUWlAAriTLEjRsHg3hqhKEUohukWwxqjO6LdzPdbOBIxT
+        qxVfxOYHzaR1csr57U8umzkAuyWmS6NvPtezIQL4Ilk/yZXtVl9kL43wsSdp+rAFdZYlYHQyQgP1
+        I/AD00tuIrGKp1yY9V3Ymf3ayLDhXbOzwm8ENjtPUJlV/3BRbniVyRbirpOyk13JsxLmDa+8kez+
+        oSE5LTGs8hzlTZGVRRkbIZtN2E5De/p77S8t4YFm67uxBwkYpFDT8P6YCIYHVMIzKs3cPBDvDCqn
+        8EDyC6ggh1Gz8AFwPe6VCNvj4XEro0SPM8BjAphRw6yd88w1z6X4HNCaazuJzlkTTrB/BZ8P1j20
+        ljmxEHXqg1NjeuUtgjdMab/QwN+P4Lxpemmki6jBy9Xx7vI4fn8SyAcGvNROhHxWzwdGvBRWRPwk
+        rQ8M+nXVfT8moBvn0UY5HAkENa7WVVXBHBJcFBWsSJ4A8kaOlj/OFfjtXA5BncVcCTNS0pxgiiFN
+        AJuEso01+gHUMAF8O5l7KV47e0yAl/L+sjP8ey0NZTq7vvPWzL+/3uopmpZnxAJc0gPKIXjiE5xH
+        CTzRCMoMH2gZQxf2AMIlPBT4EstfxJZsRT9zpQugKooLljDuVyfjZuNP7opvmTFSR4wDC5OToO6Y
+        9nLhmb7OVKz+XcX5Xpk4OdItLZh0zUsLtMx524U9izeDydwbuzeNC8MYrZ3yo2YPjTn5kBPn2uon
+        a/LZsd6a1Sem9eqvU+Vvrziu2QBhmpH4fhLwyn0vPRlKYZVCfItJjfIaoTWhiOazK5pGsTyKUQqz
+        FBe3ENaE1JCuMSnKvIhHR+aCkQ7UwU0yAdr29mcqvwu7ZvLSNaPikW+/ySuKacF5yhBFKe1wm1aE
+        8xTivCwEpBmpqnR0tlNaNmpgvUwJhAcC4Xo0/ewbhbRNG1+k+//lOWtF2QqYMoZZSmXZpqzoqrTC
+        vCAcF7kgPD2PSWO7TitzgXEdrTOQC8hfhYKKDJUYtyksKU1p1+ZpWVY8Fa3sEOctYSxLnxdJ6Q+q
+        Ny3j972zkxENt9q607y/Ze2X83L+HkAEUgpJXiWgs1rbvXQxWsAcQvh8zM9L/zISL79kvgYn2SDd
+        qv48Y1U7FmQzv7qr5OYof2js/JBvpImfA+KcPyZAGe7kIE1oZnPE7WTCi203x6T3i75GZfp1r7rf
+        p99uik83GCtxg/EN+eMG4+v2ihH85w3GsY9remfno8VncPwvAAD//9u639CyDQAA
+    headers:
+      Access-Control-Allow-Origin:
+      - '*'
+      Cache-Control:
+      - no-cache, no-store, must-revalidate, private
+      Connection:
+      - keep-alive
+      Content-Encoding:
+      - gzip
+      Content-Length:
+      - '1131'
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Thu, 27 May 2021 00:39:29 GMT
+      Expires:
+      - '0'
+      Pragma:
+      - no-cache
+      Strict-Transport-Security:
+      - max-age=300
+      Timing-Allow-Origin:
+      - https://www.twitch.tv
+      Vary:
+      - Accept-Encoding
+      X-Cache:
+      - MISS, MISS
+      X-Cache-Hits:
+      - 0, 0
+      X-Served-By:
+      - cache-sea4450-SEA, cache-sjc10040-SJC
+      X-Timer:
+      - S1622075969.299737,VS0,VS0,VE51
+    status:
+      code: 200
+      message: OK
+version: 1

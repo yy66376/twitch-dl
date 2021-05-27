@@ -1,4 +1,6 @@
 import os
+from datetime import datetime
+
 import requests
 import json
 import m3u8
@@ -7,7 +9,6 @@ import shutil
 import threading
 import subprocess
 from requests.exceptions import RequestException
-from src.constants import TWITCH_VIDEO_URL, TWITCH_GQL_URL, USHER_API_URL, CLIENT_ID
 from src.services.twitch import get_vod_info
 from src.services.twitch import get_vod_access_token
 
@@ -45,11 +46,11 @@ class VOD(object):
         self.vod_id = vod_id
 
         # Retrieve length, title, broadcast date, and the channel of the VOD
-        vod_info = get_vod_info(vod_id)
-        self.length = vod_info['length']
-        self.title = vod_id['title']
-        self.channel = vod_info['channel']
-        self.date = vod_id['date']
+        self.length = -1
+        self.title = ""
+        self.channel = ""
+        self.date = None
+        self.vod_info_from_dict(get_vod_info(vod_id))
 
         self.playlist_urls = self.get_playlist_urls()
         self.quality_options = self.get_quality_options()
@@ -75,6 +76,13 @@ class VOD(object):
 
         filename = self.download_playlist()
         self.resolve_first_last_chunks(filename)
+
+    def vod_info_from_dict(self, info: dict):
+        """Sets various information about the VOD from a dictionary."""
+        self.length = info['length']
+        self.title = info['title']
+        self.channel = info['channel']
+        self.date = info['date']
 
     def get_quality_options(self):
         return [quality for quality in self.playlist_urls.keys()]

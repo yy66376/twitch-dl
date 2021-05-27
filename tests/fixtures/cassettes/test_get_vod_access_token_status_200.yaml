@@ -1,0 +1,39 @@
+interactions:
+- request:
+    body: '{"operationName": "PlaybackAccessToken", "extensions": {"persistedQuery":
+      {"version": 1, "sha256Hash": "0828119ded1c13477966434e15800ff57ddacf13ba1911c129dc2200705b0712"}},
+      "variables": {"isLive": false, "login": "", "isVod": true, "vodID": "502435183",
+      "playerType": "embed"}}'
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Client-ID:
+      - kimne78kx3ncx6brgo4mv6wki5h1ko
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '277'
+      User-Agent:
+      - python-requests/2.25.1
+    method: POST
+    uri: https://gql.twitch.tv/gql
+  response:
+    body:
+      string: '{"data":{"videoPlaybackAccessToken":{"value":"{\"authorization\":{\"forbidden\":false,\"reason\":\"\"},\"chansub\":{\"restricted_bitrates\":[]},\"device_id\":null,\"expires\":1622147969,\"https_required\":true,\"privileged\":false,\"user_id\":null,\"version\":2,\"vod_id\":502435183}","signature":"1b0d2d262b60f1f0c51277c85061e740b545331c","__typename":"PlaybackAccessToken"}},"extensions":{"durationMilliseconds":67,"operationName":"PlaybackAccessToken","requestID":"01F6NM63XRW9T02C2QMJ90A99Q"}}'
+    headers:
+      Access-Control-Allow-Origin:
+      - '*'
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '497'
+      Content-Type:
+      - application/json
+      Date:
+      - Thu, 27 May 2021 00:39:29 GMT
+    status:
+      code: 200
+      message: OK
+version: 1
