@@ -8,22 +8,33 @@ from requests import RequestException
 from src.constants import TWITCH_VIDEO_URL, TWITCH_GQL_URL, USHER_API_URL, CLIENT_ID
 
 
-def get_vod_info(vod_id: str) -> dict:
+class TwitchAPI:
     """
-    Retrieves information about the specified VOD including length in seconds, title, channel name, and the date
-    the VOD was published in json format.
+    A class to represent the Twitch API. At present, only VOD requests can be made to the Twitch API.
+
+    Methods
+    -------
+    get_vod_info(vod_id):
+        Returns information about the specified VOD in a dictionary.
     """
-    response = requests.get(TWITCH_VIDEO_URL.format(vod_id=vod_id),
-                            headers={'Accept': 'application/vnd.twitchtv.v5+json', 'Client-ID': CLIENT_ID})
-    if response.status_code == 200:
-        json_response = response.json()
-        return {'length': json_response['length'], 'title': json_response['title'],
-                'channel': json_response['channel']['name'],
-                'date': datetime.strptime(json_response['created_at'], '%Y-%m-%dT%H:%M:%SZ')}
-    elif response.status_code == 404:
-        raise ValueError(f"The specified VOD ID {vod_id} does not exist on Twitch or has been deleted.")
-    else:
-        raise RequestException(f"Twitch server returned with status code {response.status_code}.")
+
+    @classmethod
+    def get_vod_info(cls, vod_id: str) -> dict:
+        """
+        Retrieves information about the specified VOD including length in seconds, title, channel name, and the date
+        the VOD was published in dictionary format.
+        """
+        response = requests.get(TWITCH_VIDEO_URL.format(vod_id=vod_id),
+                                headers={'Accept': 'application/vnd.twitchtv.v5+json', 'Client-ID': CLIENT_ID})
+        if response.status_code == 200:
+            json_response = response.json()
+            return {'length': json_response['length'], 'title': json_response['title'],
+                    'channel': json_response['channel']['name'],
+                    'date': datetime.strptime(json_response['created_at'], '%Y-%m-%dT%H:%M:%SZ')}
+        elif response.status_code == 404:
+            raise ValueError(f"The specified VOD ID {vod_id} does not exist on Twitch or has been deleted.")
+        else:
+            raise RequestException(f"Twitch server returned with status code {response.status_code}.")
 
 
 def get_vod_gql_query(vod_id: str):

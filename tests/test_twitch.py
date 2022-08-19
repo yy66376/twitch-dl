@@ -6,8 +6,8 @@ from unittest.mock import patch
 import vcr
 from requests import RequestException
 
-from src.services.twitch import get_vod_info, get_vod_gql_query, get_vod_access_token, contact_usher_api, \
-    get_vod_playlist_urls
+from src.services.twitch import get_vod_gql_query, get_vod_access_token, contact_usher_api, \
+    get_vod_playlist_urls, TwitchAPI
 
 my_vcr = vcr.VCR(
     cassette_library_dir='fixtures/cassettes',
@@ -20,20 +20,20 @@ class TestOfficialTwitch:
     @my_vcr.use_cassette()
     @pytest.mark.usefixtures('permanent_live_vod_id', 'fake_twitch_api_response')
     def test_get_vod_info_status_200(self, permanent_live_vod_id, fake_twitch_api_response):
-        assert get_vod_info(permanent_live_vod_id) == fake_twitch_api_response
+        assert TwitchAPI.get_vod_info(permanent_live_vod_id) == fake_twitch_api_response
 
     @pytest.mark.usefixtures('vod_id', 'mock_get')
     def test_get_vod_info_status_404(self, vod_id, mock_get):
         with pytest.raises(ValueError, match=re.escape(f"The specified VOD ID {vod_id} does not exist on Twitch or "
                                                        f"has been deleted.")):
             mock_get.return_value.status_code = 404
-            get_vod_info(vod_id)
+            TwitchAPI.get_vod_info(vod_id)
 
     @pytest.mark.usefixtures('vod_id', 'mock_get')
     def test_get_vod_info_non_404_or_200_status(self, vod_id, mock_get):
         with pytest.raises(RequestException, match="^Twitch server returned with status code .*"):
             mock_get.return_value.status_code = 400
-            get_vod_info(vod_id)
+            TwitchAPI.get_vod_info(vod_id)
 
 
 class TestUnofficialTwitch:
